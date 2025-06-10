@@ -65,6 +65,18 @@ async function getAllTeams(dbInstance) {
     }
 }
 
+async function getMatchesByUserScoutId(userScoutId, dbInstance) {
+    const query = `SELECT * FROM match_performance WHERE user_scout_id = ?`
+    try {
+        const matches = await dbInstance.all(query, [userScoutId])
+        return matches.map(dbResponseToObject)
+    } catch (error) {
+        console.error('Error fetching matches by user scout ID:', error)
+        throw error
+    }
+}
+
+
 module.exports = {
     createTeam,
     updateTeam,
