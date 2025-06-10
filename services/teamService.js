@@ -1,5 +1,5 @@
 const db = require('../database/db')
-const models = require('../modles.js')
+const models = require('../models.js')
 
 function dbResponseToObject(dbResponse) {
     const team = new models.teamRegister(dbResponse.name, dbResponse.number)
@@ -63,4 +63,12 @@ async function getAllTeams(dbInstance) {
         console.error('Error fetching all teams:', error)
         throw error
     }
+}
+
+module.exports = {
+    createTeam,
+    updateTeam,
+    deleteTeam,
+    getTeamByNumber,
+    getAllTeams
 }
