@@ -72,6 +72,8 @@ async function createTables(db) {
 
                 description TEXT,
 
+                match_number INTEGER NOT NULL,
+
                 team_number INTEGER NOT NULL,
                 user_scout_id INTEGER NOT NULL,
                 FOREIGN KEY(team_number) REFERENCES teams(number),
@@ -83,12 +85,12 @@ async function createTables(db) {
     }
 }
 
-/*
+
 (async () => {
     const db = await openDb()
     await createTables(db)
 })();
-*/
+
 module.exports = {
     openDb,
     createTables

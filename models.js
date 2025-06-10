@@ -1,6 +1,7 @@
 
 class matchRegister{
-    constructor (alliance_color, starting_position, auto_high_specimens, auto_low_specimens, auto_high_baskets, auto_low_baskets, auto_park, teleop_high_specimens, teleop_low_specimens, teleop_high_baskets, teleop_low_baskets, ascent, penalty, penalty_description, description, team_number, user_scout_id) {
+    constructor (match_number, alliance_color, starting_position, auto_high_specimens, auto_low_specimens, auto_high_baskets, auto_low_baskets, auto_park, teleop_high_specimens, teleop_low_specimens, teleop_high_baskets, teleop_low_baskets, ascent, penalty, penalty_description, description, team_number, user_scout_id) {
+        this.match_number = match_number
         this.alliance_color = alliance_color
         this.starting_position = starting_position
         this.auto_high_specimens = auto_high_specimens
