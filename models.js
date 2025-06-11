@@ -45,9 +45,10 @@ class teamRegister{
     }
 }
 class userRegister{
-    constructor (name, password) {
+    constructor (name, password, privilege = 0) {
         this.name = name
         this.password = password
+        this.privilege = privilege
     }
 }
 

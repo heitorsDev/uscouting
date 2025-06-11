@@ -5,26 +5,22 @@ const jwt = require('jsonwebtoken')
 dotenv.config()
 
 function dbResponseToObject(dbResponse) {
-    const userScout = new models.userRegister(dbResponse.name, dbResponse.password)
+    const userScout = new models.userRegister(dbResponse.name, dbResponse.password, dbResponse.privilege)
     userScout.id = dbResponse.id
     return userScout
 }
 async function createUserScout(user, dbInstance) {
-    try {
+    
         const existing = await getUserScoutByName(user.name, dbInstance)
         if (existing) {
             throw new Error(`Scout user with name ${user.name} already exists`)
         }
-    } catch (err) {
-        if (err.message.includes('not found')) {
             const hashedPassword = await bcrypt.hash(user.password, Number(process.env.HASH_SALT))
             const query = `INSERT INTO users_scout (name, password) VALUES (?, ?)`
             const result = await dbInstance.run(query, [user.name, hashedPassword])
             return { id: result.lastID, ...user }
-        } else {
-            throw err
-        }
-    }
+       
+    
 }
 
 async function updateUserScout(userScout, dbInstance) {
@@ -73,8 +69,7 @@ async function getUserScoutByName(userScoutName, dbInstance) {
         }
         return dbResponseToObject(scoutUser)
     } catch (error) {
-        console.error('Error fetching scout user by name:', error)
-        throw error
+        return null
     }
 }
 
