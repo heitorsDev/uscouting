@@ -4,7 +4,7 @@ const models = require('./models.js')
 const userScoutService = require('./services/userScoutService.js')
 const express = require('express')
 const app = express()
-
+const cookieParser = require('cookie-parser')
 const dotenv = require('dotenv')
 dotenv.config()
 let dbInstance
@@ -19,6 +19,7 @@ let dbInstance
 })()
 
 app.use(express.json())
+app.use(cookieParser())
 
 app.post('/register', async (req, res) => {
     const {user, password} = req.body
@@ -28,5 +29,22 @@ app.post('/register', async (req, res) => {
     } catch (error) {
         console.error('Error registering user:', error)
         res.status(500).json({error: "user already exists or other error"})
+    }
+})
+
+app.post('/login', async (req, res) => {
+    const {user, password} = req.body
+    try {
+        const token = await userScoutService.authUserScout(user, password, dbInstance)
+        if (token) {
+            res.status(200).cookie("token", token).json({
+                message: 'Login successful'
+            })
+        } else {
+            res.status(401).json({error: 'Invalid credentials'})
+        }
+    } catch (error) {
+        console.error('Error logging in:', error)
+        res.status(500).json({error: 'Internal server error'})
     }
 })

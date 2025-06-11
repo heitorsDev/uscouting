@@ -76,11 +76,11 @@ async function getUserScoutByName(userScoutName, dbInstance) {
 async function authUserScout(userScoutName, userScoutPassword, dbInstance) {
     const user = await getUserScoutByName(userScoutName, dbInstance)
     if (!user) {
-        throw new Error(`Scout user with name ${userScoutName} not found`)
+        return null
     }
     const isPasswordValid = await bcrypt.compare(userScoutPassword, user.password)
     if (!isPasswordValid) {
-        throw new Error('Invalid password')
+        return null
     }
     const token = jwt.sign({ id: user.id, name: user.name }, process.env.JWT_SECRET, { expiresIn: '10h' })
     return { token }
