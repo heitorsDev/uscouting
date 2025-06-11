@@ -5,6 +5,7 @@ const userScoutService = require('./services/userScoutService.js')
 const express = require('express')
 const app = express()
 const cookieParser = require('cookie-parser')
+const { authMiddleware } = require('./middleware.js')
 const dotenv = require('dotenv')
 dotenv.config()
 let dbInstance
@@ -22,18 +23,18 @@ app.use(express.json())
 app.use(cookieParser())
 
 app.post('/register', async (req, res) => {
-    const {user, password} = req.body
+    const { user, password } = req.body
     try {
-        const newUser = await userScoutService.createUserScout({name: user, password}, dbInstance)
+        const newUser = await userScoutService.createUserScout({ name: user, password }, dbInstance)
         res.status(201).json(newUser)
     } catch (error) {
         console.error('Error registering user:', error)
-        res.status(500).json({error: "user already exists or other error"})
+        res.status(500).json({ error: "user already exists or other error" })
     }
 })
 
 app.post('/login', async (req, res) => {
-    const {user, password} = req.body
+    const { user, password } = req.body
     try {
         const token = await userScoutService.authUserScout(user, password, dbInstance)
         if (token) {
@@ -41,10 +42,15 @@ app.post('/login', async (req, res) => {
                 message: 'Login successful'
             })
         } else {
-            res.status(401).json({error: 'Invalid credentials'})
+            res.status(401).json({ error: 'Invalid credentials' })
         }
     } catch (error) {
         console.error('Error logging in:', error)
-        res.status(500).json({error: 'Internal server error'})
+        res.status(500).json({ error: 'Internal server error' })
     }
+})
+
+app.post('/pit-performance', authMiddleware, async (req, res) => {
+    console.log(req.user)
+    res.status(200).json({ message: 'Pit performance endpoint is working' })
 })
