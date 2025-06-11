@@ -1,20 +1,29 @@
 const models = require('../models')
 const bcrypt = require('bcrypt') //resolver depois
-
+const dotenv = require('dotenv')
+const jwt = require('jsonwebtoken')
+dotenv.config()
 
 function dbResponseToObject(dbResponse) {
     const userScout = new models.userRegister(dbResponse.name, dbResponse.password)
     userScout.id = dbResponse.id
     return userScout
 }
-async function createUserScout(userScout, dbInstance) {
-    const query = `INSERT INTO users_scout (name, password) VALUES (?, ?)`
+async function createUserScout(user, dbInstance) {
     try {
-        const result = await dbInstance.run(query, [userScout.name, userScout.password])
-        return { id: result.lastID, ...userScout }
-    } catch (error) {
-        console.error('Error creating scout user:', error)
-        throw error
+        const existing = await getUserScoutByName(user.name, dbInstance)
+        if (existing) {
+            throw new Error(`Scout user with name ${user.name} already exists`)
+        }
+    } catch (err) {
+        if (err.message.includes('not found')) {
+            const hashedPassword = await bcrypt.hash(user.password, Number(process.env.HASH_SALT))
+            const query = `INSERT INTO users_scout (name, password) VALUES (?, ?)`
+            const result = await dbInstance.run(query, [user.name, hashedPassword])
+            return { id: result.lastID, ...user }
+        } else {
+            throw err
+        }
     }
 }
 
@@ -68,10 +77,48 @@ async function getUserScoutByName(userScoutName, dbInstance) {
         throw error
     }
 }
+
+async function authUserScout(userScoutName, userScoutPassword, dbInstance) {
+    const user = await getUserScoutByName(userScoutName, dbInstance)
+    if (!user) {
+        throw new Error(`Scout user with name ${userScoutName} not found`)
+    }
+    const isPasswordValid = await bcrypt.compare(userScoutPassword, user.password)
+    if (!isPasswordValid) {
+        throw new Error('Invalid password')
+    }
+    const token = jwt.sign({ id: user.id, name: user.name }, process.env.JWT_SECRET, { expiresIn: '10h' })
+    return { token }
+}
+
+async function decodedJwtToObject(decoded) {
+    const userScout = new models.userRegister(decoded.name, null)
+    return userScout
+}
+
+
+
+async function jwtTokenVerify(token) {
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET)
+        return decodedJwtToObject(decoded)
+    } catch (error) {
+        console.error('Error verifying JWT token:', error)
+        throw new Error('Invalid token')
+    }
+}
+
+
+
+
+
+
 module.exports = {
     createUserScout,
     updateUserScout,
     deleteUserScout,
     getUserScoutById,
-    getUserScoutByName
+    getUserScoutByName,
+    authUserScout,
+    jwtTokenVerify
 }
