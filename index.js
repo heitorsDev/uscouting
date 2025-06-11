@@ -5,6 +5,7 @@ const userScoutService = require('./services/userScoutService.js')
 const express = require('express')
 
 const scoutUserController = require('./controllers/scoutUserController.js')
+const pitPerformanceController = require('./controllers/pitPerformanceController.js')
 
 const app = express()
 const cookieParser = require('cookie-parser')
@@ -27,11 +28,11 @@ let dbInstance
     })
 
 
-app.post('/register', scoutUserController.register(dbInstance))
+    app.post('/register', scoutUserController.register(dbInstance))
 
-app.post('/login', scoutUserController.login(dbInstance))
+    app.post('/login', scoutUserController.login(dbInstance))
 
-
+    app.post('/pit-performance', authMiddleware, pitPerformanceController.createPitPerformance(dbInstance))
 
 
 })()
@@ -39,8 +40,3 @@ app.post('/login', scoutUserController.login(dbInstance))
 app.use(express.json())
 app.use(cookieParser())
 
-
-app.post('/pit-performance', authMiddleware, async (req, res) => {
-    console.log(req.userObj)
-    res.status(200).json({ message: 'Pit performance endpoint is working' })
-})

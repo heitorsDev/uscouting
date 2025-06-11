@@ -44,11 +44,12 @@ class teamRegister{
         this.number = number
     }
 }
-class userRegister{
-    constructor (name, password, privilege = 0) {
+class userRegister {
+    constructor(name, password, privilege = null, id = null) {
         this.name = name
         this.password = password
         this.privilege = privilege
+        this.id = id
     }
 }
 

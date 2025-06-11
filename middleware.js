@@ -1,7 +1,6 @@
 const userScoutService = require('./services/userScoutService.js')
 
-
-function authMiddleware(
+async function authMiddleware(
     req, 
     res, 
     next
@@ -10,15 +9,16 @@ function authMiddleware(
     if (!token) {
         return res.status(401).json({ error: 'Unauthorized' })
     }
-    userScoutService.jwtTokenVerify(token)
-        .then(user => {
-            req.userObj = user
-            next()
-        })
-        .catch(error => {
-            console.error('Token verification failed:', error)
-            res.status(401).json({ error: 'Unauthorized' })
-        })
+    try {
+        const user = await userScoutService.jwtTokenVerify(token)
+        console.log(user)
+        req.userId = user.id      
+        req.userName = user.name  
+        next()
+    } catch(error) {
+        console.error('Token verification failed:', error)
+        res.status(401).json({ error: 'Unauthorized' })
+    }
 }
 
 module.exports = { authMiddleware }
