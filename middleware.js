@@ -12,7 +12,7 @@ function authMiddleware(
     }
     userScoutService.jwtTokenVerify(token)
         .then(user => {
-            req.user = user
+            req.userObj = user
             next()
         })
         .catch(error => {

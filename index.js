@@ -51,6 +51,6 @@ app.post('/login', async (req, res) => {
 })
 
 app.post('/pit-performance', authMiddleware, async (req, res) => {
-    console.log(req.user)
+    console.log(req.userObj)
     res.status(200).json({ message: 'Pit performance endpoint is working' })
 })
