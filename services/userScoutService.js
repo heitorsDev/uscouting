@@ -20,7 +20,9 @@ async function createUserScout(user, dbInstance) {
     const hashedPassword = await bcrypt.hash(user.password, Number(process.env.HASH_SALT))
     const query = `INSERT INTO users_scout (name, password) VALUES (?, ?)`
     const result = await dbInstance.run(query, [user.name, hashedPassword])
-    return new models.userRegister(user.name, hashedPassword, null, result.lastID)
+    const queryPrivilege = `SELECT privilege FROM users_scout WHERE id = ?`
+    const resultPrivilege = await dbInstance.get(queryPrivilege, [result.lastID])
+    return new models.userRegister(user.name, hashedPassword, resultPrivilege.privilege, result.lastID)
 }
 async function updateUserScout(userScout, dbInstance) {
     const query = `UPDATE users_scout SET name = ?, password = ? WHERE id = ?`
@@ -81,7 +83,7 @@ async function authUserScout(userScoutName, userScoutPassword, dbInstance) {
     if (!isPasswordValid) {
         return null
     }
-    const token = jwt.sign({ id: user.id, name: user.name }, process.env.JWT_SECRET, { expiresIn: '10h' })
+    const token = jwt.sign({ id: user.id, name: user.name,  }, process.env.JWT_SECRET, { expiresIn: '10h' })
     return { token }
 }
 
@@ -89,7 +91,7 @@ async function decodedJwtToObject(decoded) {
     return new models.userRegister(
         decoded.name,
         null,
-        null,
+        decoded.privilege,
         decoded.id
     )
 }

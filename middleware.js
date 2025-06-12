@@ -14,6 +14,8 @@ async function authMiddleware(
         console.log(user)
         req.userId = user.id      
         req.userName = user.name  
+        req.privilege = user.privilege
+        
         next()
     } catch(error) {
         console.error('Token verification failed:', error)

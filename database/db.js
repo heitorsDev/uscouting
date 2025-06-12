@@ -19,7 +19,8 @@ async function createTables(db) {
             CREATE TABLE IF NOT EXISTS users_scout (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT UNIQUE NOT NULL,
-                password TEXT NOT NULL
+                password TEXT NOT NULL,
+                privilege INTEGRER DEFAULT 0 CHECK(privilege IN (0, 1, 2)) NOT NULL
             );
             CREATE TABLE IF NOT EXISTS teams (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
